@@ -1,0 +1,128 @@
+<!--
+# CloudSite index.html - hashtagged explanations
+#
+# This page is now a single-site homepage with a built-in About window.
+# - The main window is the landing page.
+# - The About window opens inline and can be dragged around.
+# - Button controls reuse the same desktop aesthetic.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CloudSite</title>
+    <meta name="description" content="CloudSite homepage">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="desktop">
+        <div class="window">
+            <div class="titlebar">
+                <div class="titlebar-left">
+                    <span class="window-badge"></span>
+                    <div class="window-title">CloudSite</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2>Welcome to CloudSite</h2>
+                <p>CloudSite is a personalized website built for the Cloudburst Discord Server. Join us!</p>
+                <p>Click About to open the inline window with the community details.</p>
+                <div class="button-group">
+                    <button class="button-link-button" id="openAboutButton" type="button">Open About</button>
+                    <a class="button-link secondary" href="https://discord.gg/h2dhYSwujb" target="_blank" rel="noreferrer">Join Discord</a>
+                </div>
+                <div class="footer-note">This homepage now includes the About section in one page, with draggable window behavior.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="window about-window hidden" id="aboutWindow">
+        <div class="titlebar" id="aboutHandle">
+            <div class="titlebar-left">
+                <span class="window-badge"></span>
+                <div class="window-title">About CloudSite</div>
+            </div>
+            <div class="window-controls">
+                <button id="aboutClose" aria-label="Close about window">×</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <h2>Cloudburst</h2>
+            <p>Cloudburst is a Discord community where you can play with people, chat, and hang out in a friendly place.</p>
+            <p>Most members are welcoming, so it’s a great spot to meet new people and make friends.</p>
+            <p>Join us here: <a href="https://discord.gg/h2dhYSwujb" target="_blank" rel="noreferrer">Cloudburst Discord</a></p>
+        </div>
+    </div>
+
+    <script>
+        const openAboutButton = document.getElementById('openAboutButton');
+        const aboutWindow = document.getElementById('aboutWindow');
+        const aboutHandle = document.getElementById('aboutHandle');
+        const aboutClose = document.getElementById('aboutClose');
+        const overlay = document.getElementById('overlay');
+
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        function showAbout() {
+            aboutWindow.classList.remove('hidden');
+            overlay.classList.add('visible');
+            aboutWindow.style.position = 'fixed';
+            aboutWindow.style.left = '50%';
+            aboutWindow.style.top = '50%';
+            aboutWindow.style.transform = 'translate(-50%, -50%)';
+        }
+
+        function hideAbout() {
+            aboutWindow.classList.add('hidden');
+            overlay.classList.remove('visible');
+        }
+
+        function startDrag(event) {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            const rect = aboutWindow.getBoundingClientRect();
+            aboutWindow.style.position = 'fixed';
+            aboutWindow.style.left = `${rect.left}px`;
+            aboutWindow.style.top = `${rect.top}px`;
+            aboutWindow.style.transform = 'none';
+            dragOffset.x = event.clientX - rect.left;
+            dragOffset.y = event.clientY - rect.top;
+            isDragging = true;
+            document.addEventListener('pointermove', dragMove);
+            document.addEventListener('pointerup', endDrag);
+            document.addEventListener('pointercancel', endDrag);
+        }
+
+        function dragMove(event) {
+            if (!isDragging) return;
+            const x = event.clientX - dragOffset.x;
+            const y = event.clientY - dragOffset.y;
+            const maxX = window.innerWidth - aboutWindow.offsetWidth - 12;
+            const maxY = window.innerHeight - aboutWindow.offsetHeight - 12;
+            aboutWindow.style.left = `${clamp(x, 12, maxX)}px`;
+            aboutWindow.style.top = `${clamp(y, 12, maxY)}px`;
+        }
+
+        function endDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+            document.removeEventListener('pointermove', dragMove);
+            document.removeEventListener('pointerup', endDrag);
+            document.removeEventListener('pointercancel', endDrag);
+        }
+
+        openAboutButton.addEventListener('click', showAbout);
+        aboutClose.addEventListener('click', hideAbout);
+        overlay.addEventListener('click', hideAbout);
+        aboutHandle.addEventListener('pointerdown', startDrag);
+    </script>
+</body>
+</html>

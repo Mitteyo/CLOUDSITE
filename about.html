@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>About - CloudSite</title>
+    <meta name="description" content="About CloudSite">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="desktop">
+        <div class="window about-window" id="aboutWindow">
+            <div class="titlebar" id="windowHandle">
+                <div class="titlebar-left">
+                    <span class="window-badge"></span>
+                    <div class="window-title">About CloudSite</div>
+                </div>
+                <div class="window-controls">
+                    <button id="closeWindow" aria-label="Close window">×</button>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2>Cloudburst</h2>
+                <p>Cloudburst is a Discord community where you can play with people, chat, and hang out in a friendly place.</p>
+                <p>Most members are welcoming, so it’s a great spot to meet new people and make friends.</p>
+                <p>Join us here: <a href="https://discord.gg/h2dhYSwujb" target="_blank" rel="noreferrer">Cloudburst Discord</a></p>
+                <a class="button-link" href="index.html">Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const windowEl = document.getElementById('aboutWindow');
+        const handle = document.getElementById('windowHandle');
+        const closeButton = document.getElementById('closeWindow');
+
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        function startDrag(event) {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            const rect = windowEl.getBoundingClientRect();
+            windowEl.style.position = 'fixed';
+            windowEl.style.left = `${rect.left}px`;
+            windowEl.style.top = `${rect.top}px`;
+            windowEl.style.transform = 'none';
+            dragOffset.x = event.clientX - rect.left;
+            dragOffset.y = event.clientY - rect.top;
+            isDragging = true;
+            document.addEventListener('pointermove', dragMove);
+            document.addEventListener('pointerup', endDrag);
+            document.addEventListener('pointercancel', endDrag);
+        }
+
+        function dragMove(event) {
+            if (!isDragging) return;
+            const x = event.clientX - dragOffset.x;
+            const y = event.clientY - dragOffset.y;
+            const maxX = window.innerWidth - windowEl.offsetWidth - 12;
+            const maxY = window.innerHeight - windowEl.offsetHeight - 12;
+            windowEl.style.left = `${clamp(x, 12, maxX)}px`;
+            windowEl.style.top = `${clamp(y, 12, maxY)}px`;
+        }
+
+        function endDrag(event) {
+            if (!isDragging) return;
+            isDragging = false;
+            document.removeEventListener('pointermove', dragMove);
+            document.removeEventListener('pointerup', endDrag);
+            document.removeEventListener('pointercancel', endDrag);
+            windowEl.classList.remove('dragging');
+        }
+
+        handle.addEventListener('pointerdown', startDrag);
+
+        closeButton.addEventListener('click', () => {
+            windowEl.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
